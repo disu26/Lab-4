@@ -9,8 +9,8 @@ import java.util.Scanner;
 
 public class RoundRobin {
     private static final Scanner sc = new Scanner(System.in);
-    private static int numProcesos;
-    private static int quantum;
+    private final int numProcesos;
+    private final int quantum;
     private final String archivo;
     private final Proceso[] procesos;
     private final List<String> buffer;
@@ -30,6 +30,10 @@ public class RoundRobin {
             p.setNCpu(sc.nextInt());
             p.setEstado("N");
             p.setPosicCola(i+1);
+            System.out.println("Tiempo de llegada para el proceso P"+ (i + 1) + ": ");
+            p.setTiempoLlegada(sc.nextInt());
+            System.out.println("Tiempo de entrada/salida para el proceso P"+ (i + 1) + ": ");
+            p.setTiempoEntradaSalida(sc.nextInt());
             procesos[i] = p;
         }
         tituloBuffer();
@@ -66,6 +70,14 @@ public class RoundRobin {
         this.buffer.add("\nPosic");
         for(Proceso p : procesos) {
             this.buffer.add("\t" + p.posicCola());
+        }
+        this.buffer.add("\nTiempo Llegada");
+        for(Proceso p : procesos) {
+            this.buffer.add("\t" + p.getTiempoLlegada());
+        }
+        this.buffer.add("\nTiempo Entrada/Salida");
+        for(Proceso p : procesos) {
+            this.buffer.add("\t" + p.getTiempoEntradaSalida());
         }
         this.buffer.add("\n");
         guardarArchivo();
