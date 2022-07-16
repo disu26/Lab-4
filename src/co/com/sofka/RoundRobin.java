@@ -14,6 +14,9 @@ public class RoundRobin {
     private final String archivo;
     private final Proceso[] procesos;
     private final List<String> buffer;
+    private int tiempoActual = 0;
+    private int tiempoEsperaMedio;
+    private int tiempoVueltaMedio;
 
     public RoundRobin(int numProcesos, int quantum, String archivo) {
         this.numProcesos = numProcesos;
@@ -32,6 +35,9 @@ public class RoundRobin {
             p.setPosicCola(i+1);
             System.out.println("Tiempo de llegada para el proceso P"+ (i + 1) + ": ");
             p.setTiempoLlegada(sc.nextInt());
+            if (p.getTiempoLlegada() == 0){
+                p.setLlego(true);
+            }
             System.out.println("Tiempo de entrada/salida para el proceso P"+ (i + 1) + ": ");
             p.setTiempoEntradaSalida(sc.nextInt());
             procesos[i] = p;
@@ -79,13 +85,27 @@ public class RoundRobin {
         for(Proceso p : procesos) {
             this.buffer.add("\t" + p.getTiempoEntradaSalida());
         }
+        this.buffer.add("\nTiempo Salida");
+        for(Proceso p : procesos) {
+            this.buffer.add("\t" + p.tiempoSalida());
+        }
+        this.buffer.add("\nTiempo Espera");
+        for(Proceso p : procesos) {
+            this.buffer.add("\t" + p.tiempoEspera());
+        }
+        this.buffer.add("\nTiempo Vuelta");
+        for(Proceso p : procesos) {
+            this.buffer.add("\t" + p.tiempoVuelta());
+        }
         this.buffer.add("\n");
         guardarArchivo();
     }
 
     private void colaListo() {
         for (int i = 0; i < this.numProcesos; i++) {
-            this.procesos[i].setEstado("L");
+            if (procesos[i].isLlego()){
+                this.procesos[i].setEstado("L");
+            }
         }
         guardarBuffer();
     }
@@ -97,6 +117,13 @@ public class RoundRobin {
             }
         }
         reposicionarCola();
+        for (Proceso proc : procesos){
+            tiempoEsperaMedio += proc.tiempoEspera();
+            tiempoVueltaMedio += proc.tiempoVuelta();
+        }
+        System.out.println("Tiempo de espera medio: " + (tiempoEsperaMedio/numProcesos));
+        System.out.println("Tiempo de vuelta medio: " + (tiempoVueltaMedio/numProcesos));
+
         guardarBuffer();
     }
 
@@ -122,17 +149,31 @@ public class RoundRobin {
     }
 
     private void trabajarProceso(Proceso p) {
-        if (p.nCpu() > quantum) {
-            p.setNCpu(p.nCpu() - quantum);
-            p.setEstado("E");
-            guardarBuffer();
-            p.setEstado((p.nCpu() == 0) ? "T" : "L");
-        } else if (!"T".equals(p.estado())) {
-            p.setNCpu(0);
-            p.setEstado("E");
-            reposicionarCola();
-            guardarBuffer();
-            p.setEstado("T");
+        if(p.isLlego()){
+            if (p.nCpu() > quantum) {
+                p.setNCpu(p.nCpu() - quantum);
+                p.setEstado("E");
+                if(p.tiempoAsignacion() < 0){
+                    p.setTiempoAsignacion(tiempoActual);
+                }
+                tiempoActual += quantum + 10;
+                guardarBuffer();
+                p.setEstado((p.nCpu() == 0) ? "T" : "L");
+            } else if (!"T".equals(p.estado())) {
+                p.setNCpu(0);
+                p.setEstado("E");
+                reposicionarCola();
+                p.setTiempoSalida(tiempoActual);
+                p.setTiempoEspera(p.tiempoAsignacion() - p.getTiempoLlegada());
+                p.setTiempoVuelta(p.tiempoSalida() - p.getTiempoLlegada());
+                guardarBuffer();
+                tiempoActual += quantum + 10;
+                p.setEstado("T");
+            }
+        }else {
+            if (p.getTiempoLlegada() <= tiempoActual) {
+                p.setLlego(true);
+            }
         }
     }
 
