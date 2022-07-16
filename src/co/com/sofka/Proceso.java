@@ -8,6 +8,11 @@ public final class Proceso {
     private int posicCola;
     private int tiempoLlegada;
     private int tiempoEntradaSalida;
+    private int tiempoSalida;
+    private int tiempoEspera;
+    private int tiempoAsignacion = -1;
+    private int tiempoVuelta;
+    private boolean llego = false;
 
     public Proceso() {
     }
@@ -66,5 +71,45 @@ public final class Proceso {
 
     public void setTiempoEntradaSalida(int tiempoEntradaSalida) {
         this.tiempoEntradaSalida = tiempoEntradaSalida;
+    }
+
+    public int tiempoSalida() {
+        return tiempoSalida;
+    }
+
+    public void setTiempoSalida(int tiempoSalida) {
+        this.tiempoSalida = tiempoSalida;
+    }
+
+    public boolean isLlego() {
+        return llego;
+    }
+
+    public void setLlego(boolean llego) {
+        this.llego = llego;
+    }
+
+    public int tiempoEspera() {
+        return tiempoEspera;
+    }
+
+    public void setTiempoEspera(int tiempoEspera) {
+        this.tiempoEspera = tiempoEspera;
+    }
+
+    public int tiempoAsignacion() {
+        return tiempoAsignacion;
+    }
+
+    public void setTiempoAsignacion(int tiempoAsignacion) {
+        this.tiempoAsignacion = tiempoAsignacion;
+    }
+
+    public int tiempoVuelta() {
+        return tiempoVuelta;
+    }
+
+    public void setTiempoVuelta(int tiempoVuelta) {
+        this.tiempoVuelta = tiempoVuelta;
     }
 }
